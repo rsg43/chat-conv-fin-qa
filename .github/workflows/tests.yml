@@ -25,8 +25,53 @@ jobs:
           pip install .[testing]
 
       - name: Run Unit Tests
-        run: pytest
+        run: |
+          pytest
 
-      - name: Run checks
+      - name: Linting - Flake8
         if: '!cancelled()'
-        run: bash checks.sh
+        run: |
+          PY_FILES=$(git ls-files '*.py')
+
+          if [ -z "$PY_FILES" ]
+          then
+            echo "No files to check!"
+          else
+            flake8 $PY_FILES
+          fi
+
+      - name: Linting - Pylint
+        if: '!cancelled()'
+        run: |
+          PY_FILES=$(git ls-files '*.py')
+
+          if [ -z "$PY_FILES" ]
+          then
+            echo "No files to check!"
+          else
+            pylint $PY_FILES
+          fi
+
+      - name: Linting - MyPy
+        if: '!cancelled()'
+        run: |
+          PY_FILES=$(git ls-files '*.py')
+
+          if [ -z "$PY_FILES" ]
+          then
+            echo "No files to check!"
+          else
+            mypy --strict $PY_FILES
+          fi
+
+      - name: Linting - Docstrings
+        if: '!cancelled()'
+        run: |
+          PY_FILES=$(git ls-files '*.py')
+
+          if [ -z "$PY_FILES" ]
+          then
+            echo "No files to check!"
+          else
+            pydoclint --style=sphinx --check-class-attributes=False --skip-checking-short-docstrings=False $PY_FILES
+          fi
