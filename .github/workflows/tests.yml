@@ -1,0 +1,77 @@
+name: run-tests
+on:
+  pull_request:
+
+  push:
+    branches:
+      main
+jobs:
+  unit-tests-and-linting:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Setup Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Requirements
+        run: |
+          sudo apt install -y python3-enchant aspell aspell-en
+          pip install .[testing]
+
+      - name: Run Unit Tests
+        run: |
+          pytest
+
+      - name: Linting - Flake8
+        if: '!cancelled()'
+        run: |
+          PY_FILES=$(git ls-files '*.py')
+
+          if [ -z "$PY_FILES" ]
+          then
+            echo "No files to check!"
+          else
+            flake8 $PY_FILES
+          fi
+
+      - name: Linting - Pylint
+        if: '!cancelled()'
+        run: |
+          PY_FILES=$(git ls-files '*.py')
+
+          if [ -z "$PY_FILES" ]
+          then
+            echo "No files to check!"
+          else
+            pylint $PY_FILES
+          fi
+
+      - name: Linting - MyPy
+        if: '!cancelled()'
+        run: |
+          PY_FILES=$(git ls-files '*.py')
+
+          if [ -z "$PY_FILES" ]
+          then
+            echo "No files to check!"
+          else
+            mypy --strict $PY_FILES
+          fi
+
+      - name: Linting - Docstrings
+        if: '!cancelled()'
+        run: |
+          PY_FILES=$(git ls-files '*.py')
+
+          if [ -z "$PY_FILES" ]
+          then
+            echo "No files to check!"
+          else
+            pydoclint --style=sphinx --check-class-attributes=False --skip-checking-short-docstrings=False $PY_FILES
+          fi
