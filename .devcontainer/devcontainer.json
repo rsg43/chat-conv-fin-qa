@@ -20,7 +20,7 @@
 					],
 					"editor.defaultFormatter": "ms-python.black-formatter",
 					"editor.formatOnSave": true
-				},
+				}
 			},
 			"extensions": [
 				"ms-python.black-formatter",
