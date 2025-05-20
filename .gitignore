@@ -176,3 +176,7 @@ cython_debug/
 
 # Chat history database (testing)
 chat_history.db
+
+# Data for the dataset
+data/
+.DS_Store
