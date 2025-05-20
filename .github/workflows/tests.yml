@@ -1,0 +1,32 @@
+name: run-tests
+on:
+  pull_request:
+
+  push:
+    branches:
+      main
+jobs:
+  unit-tests-and-linting:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Setup Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Requirements
+        run: |
+          sudo apt install -y python3-enchant aspell aspell-en
+          pip install .[testing]
+
+      - name: Run Unit Tests
+        run: pytest
+
+      - name: Run checks
+        if: '!cancelled()'
+        run: bash checks.sh
