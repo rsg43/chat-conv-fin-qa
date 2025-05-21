@@ -32,7 +32,7 @@ SERVERS = {
 
 class MCPClient:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.chat_history = ChatHistory()
         self.sessions: list[ClientSession] = []
         self.exit_stack = AsyncExitStack()
@@ -46,7 +46,7 @@ class MCPClient:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close()
 
-    async def connect_to_servers(self):
+    async def connect_to_servers(self) -> None:
         all_tools: list[dict[str, Any]] = []
         for _, server_params in SERVERS.items():
             stdio_transport = await self.exit_stack.enter_async_context(
@@ -73,7 +73,7 @@ class MCPClient:
 
         self._model.bind_tools(all_tools)
 
-    async def invoke(self, query: str, session_id: str):
+    async def invoke(self, query: str, session_id: str) -> None:
         messages = [
             SystemMessage(content=SYSTEM_PROMPT)
         ] + self.chat_history.get_messages(session_id)
@@ -108,7 +108,7 @@ class MCPClient:
             messages=new_messages, session_id=session_id
         )
 
-    async def run(self):
+    async def run(self) -> None:
         print("\nMCP Client Running! (enter q to quit)")
         session_id = uuid4().hex
         while True:
@@ -124,11 +124,11 @@ class MCPClient:
             except Exception as e:
                 print(f"\nError: {str(e)}")
 
-    async def close(self):
+    async def close(self) -> None:
         await self.exit_stack.aclose()
 
 
-async def main():
+async def main() -> None:
     async with MCPClient() as client:
         await client.run()
 

@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 
 class ChatHistory:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._engine = create_engine(url="sqlite:///chat_history.db")
 
     def get_messages(self, session_id: str) -> list[BaseMessage]:

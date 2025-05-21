@@ -27,7 +27,8 @@ def divide(a: float, b: float) -> float:
 
 @mcp.tool()
 def exp(a: float, b: float) -> float:
-    return a**b
+    res: float = a**b
+    return res
 
 
 @mcp.tool()
