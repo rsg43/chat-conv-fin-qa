@@ -19,6 +19,8 @@ dependencies = [
   "langchain-community==0.3.24",
   "langchain-openai==0.3.17",
   "langchain-anthropic==0.3.13",
+  "mcp==1.9.0",
+  "uv==0.7.6",
 ]
 
 [project.optional-dependencies]
