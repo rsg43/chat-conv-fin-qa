@@ -1,6 +1,6 @@
 from typing import Any
 from contextlib import AsyncExitStack
-import asyncio
+from asyncio import run
 from uuid import uuid4
 
 from mcp import ClientSession, StdioServerParameters
@@ -78,9 +78,7 @@ class MCPClient:
             SystemMessage(content=SYSTEM_PROMPT)
         ] + self.chat_history.get_messages(session_id)
         new_messages: list[BaseMessage] = [HumanMessage(content=query)]
-        print("BEFORE")
         response = self._model.chat(messages + new_messages)
-        print("AFTER")
         new_messages.append(response)
 
         while len(response.tool_calls) > 0:
@@ -133,5 +131,5 @@ async def main() -> None:
         await client.run()
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+def start_client() -> None:
+    run(main())
