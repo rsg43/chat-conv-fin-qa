@@ -15,11 +15,60 @@ from langchain_core.messages import (
 from chat_conv_fin_qa.chat_history import ChatHistory
 from chat_conv_fin_qa.model.anthropic import AnthropicModel
 
+DEFAULT_CONTEXT = """
+ [
+    [
+        "2008",
+        "year ended june 30 2009 2008",
+        "year ended june 30 2009 2008",
+        "year ended june 30 2009"
+    ],
+    [
+        "net income",
+        "$ 103102",
+        "$ 104222",
+        "$ 104681"
+    ],
+    [
+        "non-cash expenses",
+        "74397",
+        "70420",
+        "56348"
+    ],
+    [
+        "change in receivables",
+        "21214",
+        "-2913 ( 2913 )",
+        "-28853 ( 28853 )"
+    ],
+    [
+        "change in deferred revenue",
+        "21943",
+        "5100",
+        "24576"
+    ],
+    [
+        "change in other assets and liabilities",
+        "-14068 ( 14068 )",
+        "4172",
+        "17495"
+    ],
+    [
+        "net cash from operating activities",
+        "$ 206588",
+        "$ 181001",
+        "$ 174247"
+    ]
+]
+"""
 
-SYSTEM_PROMPT = (
+
+SYSTEM_PROMPT_TEMPLATE = (
     "You are a helpful assistant. Try to answer questions concisely and "
     "accuretely. You are also able to call tools to help you answer questions"
-    ". Only use tools if the question requires it. "
+    ". Only use tools if the question requires it. Answer the questions based"
+    "on the conversation history and the context below:\n\n"
+    "<context>{context}</context>\n\n"
 )
 
 SERVERS = {
@@ -38,6 +87,7 @@ class MCPClient:
         self.exit_stack = AsyncExitStack()
         self.tool_sessions: dict[str, ClientSession] = {}
         self._model = AnthropicModel()
+        self._system_prompt: str
 
     async def __aenter__(self):
         await self.connect_to_servers()
@@ -75,7 +125,7 @@ class MCPClient:
 
     async def invoke(self, query: str, session_id: str) -> None:
         messages = [
-            SystemMessage(content=SYSTEM_PROMPT)
+            SystemMessage(content=self._system_prompt)
         ] + self.chat_history.get_messages(session_id)
         new_messages: list[BaseMessage] = [HumanMessage(content=query)]
         response = self._model.chat(messages + new_messages)
@@ -108,6 +158,15 @@ class MCPClient:
 
     async def run(self) -> None:
         print("\nMCP Client Running! (enter q to quit)")
+
+        print("Please enter the context you want to query against. ")
+        context = input("Context: ").strip()
+        if not context:
+            print("using default context")
+            context = DEFAULT_CONTEXT
+            print(context)
+
+        self._system_prompt = SYSTEM_PROMPT_TEMPLATE.format(context=context)
         session_id = uuid4().hex
         while True:
             try:
