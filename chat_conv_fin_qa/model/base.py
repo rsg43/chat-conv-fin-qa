@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from langchain_core.messages import BaseMessage
+from mcp.types import Tool
 
 
 class BaseModel(ABC):
@@ -26,4 +27,13 @@ class BaseModel(ABC):
         :type prompt: str
         :return: The model's response.
         :rtype: str
+        """
+
+    @abstractmethod
+    def bind_tools(self, tools: list[Tool]) -> None:
+        """
+        Method to bind tools to the model.
+
+        :param tools: List of tool names to bind to the model.
+        :type tools: list[Tool]
         """
