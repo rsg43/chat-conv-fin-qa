@@ -1,12 +1,17 @@
-from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional
 
-from langchain_core.messages import BaseMessage, AIMessage
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
+from langchain_core.runnables import Runnable
+from langchain_core.language_models import LanguageModelInput
+from langchain_core.language_models.chat_models import BaseChatModel
 
 
-class BaseModel(ABC):
+class BaseModel:
 
-    @abstractmethod
+    _model: BaseChatModel
+    _tools_bound: bool = False
+    _tool_model: Optional[Runnable[LanguageModelInput, BaseMessage]]
+
     def chat(self, messages: list[BaseMessage]) -> AIMessage:
         """
         Method to send a list of messages to the model and generated the next
@@ -17,8 +22,10 @@ class BaseModel(ABC):
         :return: The model's response message.
         :rtype: AIMessage
         """
+        if self._tools_bound and self._tool_model:
+            return self._tool_model.invoke(input=messages)
+        return self._model.invoke(input=messages)
 
-    @abstractmethod
     def invoke(self, prompt: str) -> str:
         """
         Method to send a prompt to the model and get the response.
@@ -28,8 +35,10 @@ class BaseModel(ABC):
         :return: The model's response.
         :rtype: str
         """
+        if self._tools_bound and self._tool_model:
+            return self._tool_model.invoke(input=prompt).content
+        return self._model.invoke(input=prompt).content
 
-    @abstractmethod
     def bind_tools(self, tools: list[dict[str, Any]]) -> None:
         """
         Method to bind tools to the model.
@@ -37,3 +46,16 @@ class BaseModel(ABC):
         :param tools: List of tool names to bind to the model.
         :type tools: list[dict[str, Any]]
         """
+        self._tool_model = self._model.bind_tools(tools)
+        self._tools_bound = True
+
+    def with_structured_output(
+        self, output_schema: dict[str, Any]
+    ) -> Runnable[LanguageModelInput, BaseMessage]:
+        """
+        Method to set the output schema for the model.
+
+        :param output_schema: The output schema to set.
+        :type output_schema: dict[str, Any]
+        """
+        return self._model.with_structured_output(output_schema)
