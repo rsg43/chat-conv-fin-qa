@@ -36,10 +36,8 @@ class BaseModel:
         :rtype: str
         """
         if self._tools_bound and self._tool_model:
-            return self._tool_model.invoke(
-                input=[HumanMessage(content=prompt)]
-            ).content
-        return self._model.invoke(input=[HumanMessage(content=prompt)]).content
+            return self._tool_model.invoke(input=prompt).content
+        return self._model.invoke(input=prompt).content
 
     def bind_tools(self, tools: list[dict[str, Any]]) -> None:
         """
@@ -50,3 +48,14 @@ class BaseModel:
         """
         self._tool_model = self._model.bind_tools(tools)
         self._tools_bound = True
+
+    def with_structured_output(
+        self, output_schema: dict[str, Any]
+    ) -> Runnable[LanguageModelInput, BaseMessage]:
+        """
+        Method to set the output schema for the model.
+
+        :param output_schema: The output schema to set.
+        :type output_schema: dict[str, Any]
+        """
+        return self._model.with_structured_output(output_schema)

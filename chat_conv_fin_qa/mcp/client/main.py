@@ -68,8 +68,7 @@ DEFAULT_CONTEXT = """
 SYSTEM_PROMPT_TEMPLATE = (
     "You are a helpful assistant. Try to answer questions concisely and "
     "accuretely. You are also able to call tools to help you answer questions"
-    ". Only use tools if the question requires it. If giving a numerical answer"
-    "simply return the final value (e.g. 3853.343, 75%). Answer the questions "
+    ". Only use tools if the question requires it. Answer the questions "
     "based on the conversation history and the context below:\n\n"
     "<context>{context}</context>\n\n"
 )
