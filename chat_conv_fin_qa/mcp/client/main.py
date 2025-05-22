@@ -7,6 +7,7 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from langchain_core.messages import (
     SystemMessage,
+    AIMessage,
     HumanMessage,
     BaseMessage,
     ToolMessage,
@@ -67,8 +68,9 @@ DEFAULT_CONTEXT = """
 SYSTEM_PROMPT_TEMPLATE = (
     "You are a helpful assistant. Try to answer questions concisely and "
     "accuretely. You are also able to call tools to help you answer questions"
-    ". Only use tools if the question requires it. Answer the questions based"
-    "on the conversation history and the context below:\n\n"
+    ". Only use tools if the question requires it. If giving a numerical answer"
+    "simply return the final value (e.g. 3853.343, 75%). Answer the questions "
+    "based on the conversation history and the context below:\n\n"
     "<context>{context}</context>\n\n"
 )
 
@@ -124,7 +126,7 @@ class MCPClient:
 
         self._model.bind_tools(all_tools)
 
-    async def invoke(self, query: str, session_id: str) -> None:
+    async def invoke(self, query: str, session_id: str) -> AIMessage:
         messages = [
             SystemMessage(content=self._system_prompt)
         ] + self.chat_history.get_messages(session_id)
@@ -133,7 +135,9 @@ class MCPClient:
         new_messages.append(response)
 
         while len(response.tool_calls) > 0:
-            print(f"AI: {response.content[0]["text"]}")
+            if response.content[0]["type"] == "text":
+                print(f"AI: {response.content[0]["text"]}")
+
             for tool_call in response.tool_calls:
                 print(
                     f'Tool: {tool_call["name"]}, arguments {tool_call["args"]}'
@@ -163,6 +167,8 @@ class MCPClient:
         self.chat_history.add_messages(
             messages=new_messages, session_id=session_id
         )
+
+        return response
 
     async def run(self) -> None:
         print("\nMCP Client Running! (enter q to quit)")
