@@ -1,5 +1,9 @@
 # Chat ConvFinQA
 
+# Requirements
+Need to provide an Anthropic API key (or OpenAI, but I have not tested this!).
+A dev container is provided which will installed requirements.
+
 # Usage
 I have included a very basic setup for a MCP client, which has use of a simple
 maths MCP server (same tools as mentioned in the paper linked for the task).
