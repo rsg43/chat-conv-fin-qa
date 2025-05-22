@@ -11,6 +11,7 @@ from langchain_core.messages import (
     BaseMessage,
     ToolMessage,
 )
+from mcp.types import TextContent
 
 from chat_conv_fin_qa.chat_history import ChatHistory
 from chat_conv_fin_qa.model.anthropic import AnthropicModel
@@ -134,11 +135,18 @@ class MCPClient:
         while len(response.tool_calls) > 0:
             print(f"AI: {response.content[0]["text"]}")
             for tool_call in response.tool_calls:
-                print(f"Tool call: {tool_call}")
+                print(
+                    f'Tool: {tool_call["name"]}, arguments {tool_call["args"]}'
+                )
                 result = await self.tool_sessions[tool_call["name"]].call_tool(
                     name=tool_call["name"], arguments=tool_call["args"]
                 )
-                print(f"Result: {result.content}")
+                print_result = (
+                    val.text
+                    if isinstance(val := result.content[0], TextContent)
+                    else val
+                )
+                print(f"Result: {print_result}")
 
                 new_messages.append(
                     ToolMessage(
