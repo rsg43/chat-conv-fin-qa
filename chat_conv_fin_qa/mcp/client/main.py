@@ -1,3 +1,9 @@
+"""
+Module container main MCP client, which connects to the MCP server and
+allows the user to interact with it via a command line interface. Users can
+chat to the model, which can invoke tools to answer questions as required.
+"""
+
 from typing import Any
 from contextlib import AsyncExitStack
 from asyncio import run
@@ -82,6 +88,11 @@ SERVERS = {
 
 
 class MCPClient:
+    """
+    Main client class for the MCP client. This class handles the connection
+    to the MCP server, manages the chat history, and provides methods for
+    interacting with the server. The client can invoke tools and handle
+    responses from the server."""
 
     def __init__(self) -> None:
         self.chat_history = ChatHistory()
@@ -99,6 +110,11 @@ class MCPClient:
         await self.close()
 
     async def connect_to_servers(self) -> None:
+        """
+        Connect to the MCP servers and initialize the client sessions.
+        This method sets up the necessary connections to the servers and
+        initializes the client sessions for communication.
+        """
         all_tools: list[dict[str, Any]] = []
         for _, server_params in SERVERS.items():
             stdio_transport = await self.exit_stack.enter_async_context(
@@ -126,6 +142,20 @@ class MCPClient:
         self._model.bind_tools(all_tools)
 
     async def invoke(self, query: str, session_id: str) -> AIMessage:
+        """
+        Invoke the model with the given query and session ID. This method
+        sends the query to the model, receives the response, and handles
+        any tool calls that may be required to answer the query. The
+        chat history is updated with the new messages, and the response
+        is returned.
+
+        :param query: The query to send to the model.
+        :type query: str
+        :param session_id: The session ID for the chat history.
+        :type session_id: str
+        :return: The response from the model.
+        :rtype: AIMessage
+        """
         messages = [
             SystemMessage(content=self._system_prompt)
         ] + self.chat_history.get_messages(session_id)
@@ -170,6 +200,14 @@ class MCPClient:
         return response
 
     async def run(self) -> None:
+        """
+        Main loop for the MCP client. This method handles user input,
+        sends queries to the model, and displays the responses. The loop
+        continues until the user decides to quit. The user can enter
+        queries, and the client will handle the responses and any tool
+        calls that may be required. The chat history is updated with
+        the new messages, and the context is set based on user input.
+        """
         print("\nMCP Client Running! (enter q to quit)")
 
         print("Please enter the context you want to query against. ")
@@ -199,9 +237,15 @@ class MCPClient:
 
 
 async def main() -> None:
+    """
+    Main function to run the MCP client.
+    """
     async with MCPClient() as client:
         await client.run()
 
 
 def start_client() -> None:
+    """
+    Start the MCP client.
+    """
     run(main())
