@@ -49,13 +49,13 @@ EVALUATION_PROMPT = dedent(
 
 class EvaluateClient(MCPClient):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._model_structured = AnthropicModel().with_structured_output(
             output_schema=Score.model_json_schema()
         )
 
-    async def evaluate(self):
+    async def evaluate(self) -> None:
         with open("data/train.json", "r") as f:
             data: list[dict[str, Any]] = json.load(f)
 
