@@ -16,7 +16,7 @@ class AnthropicModel(BaseModel):
     _model = ChatOpenAI(
         model="gpt-4o",
         temperature=0.3,
-        max_tokens=1024,
+        max_tokens=1024,  # type: ignore[call-arg]
         timeout=60,
         max_retries=3,
     )

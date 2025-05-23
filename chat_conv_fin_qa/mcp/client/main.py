@@ -4,7 +4,9 @@ allows the user to interact with it via a command line interface. Users can
 chat to the model, which can invoke tools to answer questions as required.
 """
 
+from types import TracebackType
 from typing import Any
+from typing_extensions import Self
 from contextlib import AsyncExitStack
 from asyncio import run
 from uuid import uuid4
@@ -102,11 +104,16 @@ class MCPClient:
         self._model = AnthropicModel()
         self._system_prompt: str
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         await self.connect_to_servers()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         await self.close()
 
     async def connect_to_servers(self) -> None:
@@ -164,7 +171,12 @@ class MCPClient:
         new_messages.append(response)
 
         while len(response.tool_calls) > 0:
-            if response.content[0]["type"] == "text":
+            if (
+                isinstance(response.content, list)
+                and len(response.content) > 0
+                and isinstance(response.content[0], dict)
+                and response.content[0]["type"] == "text"
+            ):
                 print(f"AI: {response.content[0]["text"]}")
 
             for tool_call in response.tool_calls:
@@ -183,7 +195,7 @@ class MCPClient:
 
                 new_messages.append(
                     ToolMessage(
-                        content=result.content,
+                        content=result.content,  # type: ignore[arg-type]
                         name=tool_call["name"],
                         tool_call_id=tool_call["id"],
                     )
