@@ -105,7 +105,7 @@ class EvaluateClient(MCPClient):
             print(f"AI Answer: {response.content}")
             print(f"Expected Answer: {item['qa']['answer']}")
 
-            response = self._model_structured.invoke(
+            structred_response = self._model_structured.invoke(
                 input=EVALUATION_PROMPT.format(
                     answer=response.content,
                     reference=item["qa"]["answer"],
@@ -113,10 +113,10 @@ class EvaluateClient(MCPClient):
                 )
             )
             try:
-                score = Score.model_validate(response)
+                score = Score.model_validate(structred_response)
                 print(f"Score: {score.score}")
             except Exception:
-                print(f"Score validation error")
+                print("Score validation error")
             print("=" * 79)
 
             cnt += 1

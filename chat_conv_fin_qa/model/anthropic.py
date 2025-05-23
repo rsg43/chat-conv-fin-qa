@@ -14,7 +14,7 @@ class AnthropicModel(BaseModel):
     """
 
     _model = ChatAnthropic(
-        model="claude-3-haiku-20240307",
+        model="claude-3-haiku-20240307",  # type: ignore[call-arg]
         temperature=0.3,
         max_tokens=1024,
         timeout=60,
