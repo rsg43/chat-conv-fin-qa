@@ -1,3 +1,17 @@
+"""
+Module to evaluate the MCP client using a set of questions and answers from the
+Conversational Financial Question Answering (CFQA) dataset. The evaluation
+process involves checking the answers provided by the model against the
+expected answers and scoring them based on their correctness.
+
+The evaluation is done using a structured output model, which allows for
+validation of the scores returned by the model and accounting for any verbose
+answers which have numerical answers, negatives, differences etc.
+
+This could be extended to use other evaluation metrics such as BLEU or ROUGE
+scores, but for now we are using a simple scoring system from 0 to 100.
+"""
+
 from typing import Any
 from asyncio import run
 import json
@@ -48,6 +62,9 @@ EVALUATION_PROMPT = dedent(
 
 
 class EvaluateClient(MCPClient):
+    """
+    Client to evaluate the MCP client using a set of questions and answers.
+    """
 
     def __init__(self) -> None:
         super().__init__()
@@ -56,6 +73,13 @@ class EvaluateClient(MCPClient):
         )
 
     async def evaluate(self) -> None:
+        """
+        Evaluate the MCP client using a set of questions and answers from the
+        Conversational Financial Question Answering (CFQA) dataset. The
+        evaluation process involves checking the answers provided by the model
+        against the expected answers and scoring them based on their
+        correctness.
+        """
         with open("data/train.json", "r") as f:
             data: list[dict[str, Any]] = json.load(f)
 
@@ -101,6 +125,9 @@ class EvaluateClient(MCPClient):
 
 
 async def main() -> None:
+    """
+    Main function to run the evaluation client.
+    """
     async with EvaluateClient() as client:
         await client.evaluate()
 
