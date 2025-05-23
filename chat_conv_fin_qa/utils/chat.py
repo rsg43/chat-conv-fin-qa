@@ -1,3 +1,11 @@
+"""
+Module to test out chat functionality with Anthropic model.
+This module provides a simple command-line interface to interact with the
+Anthropic model. The user can input messages, and the model will respond
+based on the provided prompt and chat history. The chat history is
+maintained in memory, allowing for a continuous conversation.
+"""
+
 from uuid import uuid4
 
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -7,6 +15,9 @@ from chat_conv_fin_qa.chat_history import ChatHistory
 
 
 def main() -> None:
+    """
+    Main function to run the chat interface with the Anthropic model.
+    """
     model = AnthropicModel()
     chat_history = ChatHistory()
     session_id = uuid4().hex

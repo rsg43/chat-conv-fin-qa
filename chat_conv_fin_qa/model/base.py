@@ -1,12 +1,25 @@
+"""
+Base module for the model wrapper, which provides a common interface for
+interacting with different models. This module is designed to be extended
+for specific models, such as OpenAI or Anthropic. The base class provides
+methods for sending messages to the model, invoking the model with a
+prompt, and binding tools to the model. The class also provides a method
+for setting the output schema for the model.
+"""
+
 from typing import Any, Optional
 
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
+from langchain_core.messages import BaseMessage, AIMessage
 from langchain_core.runnables import Runnable
 from langchain_core.language_models import LanguageModelInput
 from langchain_core.language_models.chat_models import BaseChatModel
 
 
 class BaseModel:
+    """
+    Base class for model wrappers. This class provides a common interface
+    for interacting with different models.
+    """
 
     _model: BaseChatModel
     _tools_bound: bool = False
@@ -57,5 +70,7 @@ class BaseModel:
 
         :param output_schema: The output schema to set.
         :type output_schema: dict[str, Any]
+        :return: A runnable model with the specified output schema.
+        :rtype: Runnable[LanguageModelInput, BaseMessage]
         """
         return self._model.with_structured_output(output_schema)
